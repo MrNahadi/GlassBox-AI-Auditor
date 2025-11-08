@@ -48,11 +48,11 @@ This document explains the SHAP (SHapley Additive exPlanations) validation syste
 ## How to Run the Validation
 
 ```powershell
-# Navigate to backend directory
-cd .\backend
+# Navigate to backend scripts directory
+cd backend/scripts
 
 # Run the SHAP validation test
-python test_shap_validation.py
+python validate_shap.py
 ```
 
 ## What Gets Generated
@@ -63,7 +63,7 @@ python test_shap_validation.py
 - Individual tender explanations
 - Validation test results
 
-### 2. Visualization Files (in `shap_plots/`)
+### 2. Visualization Files (in `backend/shap_plots/`)
 
 - `shap_summary.png` - Feature importance with value distributions
 - `shap_bar.png` - Simple feature importance ranking
@@ -85,7 +85,7 @@ shap_dict = {name: float(value) for name, value in zip(feature_names, shap_value
 # - Production API endpoint
 ```
 
-### Testing Implementation (`backend/test_shap_validation.py`)
+### Testing Implementation (`backend/scripts/validate_shap.py`)
 
 ```python
 # Batch SHAP for model validation
@@ -163,12 +163,19 @@ mean_shap = np.mean(np.abs(shap_values), axis=0)
 
 ```
 backend/
-├── test_shap_validation.py       # Comprehensive SHAP testing
-├── SHAP_VALIDATION_README.md     # This file
-└── shap_plots/                   # Generated visualizations
-    ├── shap_summary.png
-    ├── shap_bar.png
-    └── shap_waterfall_*.png
+├── scripts/
+│   ├── train_model.py             # Model training with SHAP
+│   └── validate_shap.py           # Comprehensive SHAP testing
+├── shap_plots/                    # Generated visualizations
+│   ├── shap_summary.png
+│   ├── shap_bar.png
+│   └── shap_waterfall_*.png
+├── models/
+│   ├── auditor_model_pipeline.joblib
+│   └── shap_explainer_pipeline.joblib
+└── data/
+    ├── model_stats_pipeline.json
+    └── full_dataset_pipeline.csv
 ```
 
 ## Conclusion

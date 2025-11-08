@@ -76,15 +76,42 @@ Welcome to the comprehensive documentation for Glassbox AI - a multi-modal AI-po
 ## Project Structure
 
 ```
-project/
+AI_Auditor/
 ├── src/                    # React frontend (TypeScript + Vite)
+│   ├── components/         # React components
+│   │   ├── Layout.tsx
+│   │   ├── RiskResults.tsx
+│   │   ├── ThemeSelector.tsx
+│   │   └── ui/            # shadcn/ui components
+│   ├── contexts/          # React contexts (Theme)
+│   ├── hooks/             # Custom React hooks
+│   ├── lib/               # Utility functions
+│   ├── pages/             # Page components
+│   │   ├── Dashboard.tsx
+│   │   ├── Glossary.tsx
+│   │   └── LiveAudit.tsx
+│   └── services/          # API client
 ├── backend/
-│   ├── app/                # FastAPI application
-│   ├── scripts/            # Training & validation scripts
-│   ├── models/             # Trained ML models
-│   ├── data/               # Training data & statistics
-│   └── tests/              # Backend tests
-└── docs/                   # Documentation (you are here)
+│   ├── app/               # FastAPI application
+│   │   ├── main.py
+│   │   └── chart_generator.py
+│   ├── scripts/           # Training & validation scripts
+│   │   ├── train_model.py
+│   │   └── validate_shap.py
+│   ├── models/            # Trained ML models (.joblib)
+│   ├── data/              # Training data & statistics
+│   ├── shap_plots/        # SHAP validation visualizations
+│   └── tests/             # Backend tests
+├── docs/                  # Documentation (you are here)
+│   ├── README.md
+│   ├── QUICKSTART.md
+│   ├── SHAP_INTEGRATION_GUIDE.md
+│   ├── SHAP_VALIDATION.md
+│   └── COLOR_SCHEME.md
+├── package.json           # Frontend dependencies
+├── vite.config.ts         # Vite configuration
+├── tailwind.config.js     # Tailwind CSS config
+└── tsconfig.json          # TypeScript config
 ```
 
 ---

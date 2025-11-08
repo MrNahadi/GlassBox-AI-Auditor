@@ -36,7 +36,7 @@ The application uses a consistent color scheme across all components to represen
 
 ### Frontend (React/TypeScript)
 
-**RiskResults.tsx** - Main risk display component:
+**src/components/RiskResults.tsx** - Main risk display component:
 
 ```typescript
 const getRiskColor = (level: string) => {
@@ -58,7 +58,7 @@ const getRiskColor = (level: string) => {
 
 ### Backend (Python/FastAPI)
 
-**chart_generator.py** - PDF report charts:
+**backend/app/chart_generator.py** - PDF report charts:
 
 ```python
 if risk_level in ['Minimal', 'Low']:
@@ -69,7 +69,7 @@ else:  # High or Critical
     risk_color = '#ef4444'  # Red
 ```
 
-**main.py** - PDF report generation:
+**backend/app/main.py** - PDF report generation:
 
 ```python
 if report_data.risk_level in ["Minimal", "Low"]:
@@ -101,23 +101,23 @@ This is independent of the overall risk level and shows the direction of feature
 
 ## Components Using Risk Colors
 
-1. **Live Audit Page** (`LiveAudit.tsx`)
+1. **Live Audit Page** (`src/pages/LiveAudit.tsx`)
 
    - Quick fill buttons use appropriate colors
    - Risk slider gradient from green to red
 
-2. **Risk Results Component** (`RiskResults.tsx`)
+2. **Risk Results Component** (`src/components/RiskResults.tsx`)
 
    - Main risk score display
    - Pie chart (risk segment)
    - Radar chart (risk factors)
    - Risk level badge
 
-3. **Dashboard** (`Dashboard.tsx`)
+3. **Dashboard** (`src/pages/Dashboard.tsx`)
 
    - SHAP value bar chart (red/green for increase/decrease)
 
-4. **PDF Reports** (`main.py`, `chart_generator.py`)
+4. **PDF Reports** (`backend/app/main.py`, `backend/app/chart_generator.py`)
    - Risk assessment card
    - Radar charts
    - Risk level labels

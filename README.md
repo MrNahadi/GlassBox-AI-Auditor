@@ -134,7 +134,7 @@ Frontend runs on `http://localhost:5173`
 ## Project Structure
 
 ```
-glassbox-ai/
+AI_Auditor/
 ├── backend/
 │   ├── app/
 │   │   ├── __init__.py
@@ -148,7 +148,7 @@ glassbox-ai/
 │   │   └── shap_explainer_pipeline.joblib # SHAP explainer
 │   ├── data/                    # Datasets and stats (generated)
 │   │   ├── model_stats_pipeline.json      # Model metrics
-│   │   └── full_dataset_pipeline.csv      # Training data
+│   │   └── full_dataset_pipeline.csv      # Training data (40K records)
 │   ├── tests/                   # Backend tests (ready for expansion)
 │   ├── shap_plots/              # SHAP validation visualizations (generated)
 │   ├── requirements.txt         # Python dependencies
@@ -163,17 +163,30 @@ glassbox-ai/
 │   │   └── ui/                 # shadcn/ui components
 │   ├── contexts/
 │   │   └── ThemeContext.tsx    # Theme management
+│   ├── hooks/
+│   │   └── use-toast.ts        # Toast notifications
+│   ├── lib/
+│   │   └── utils.ts            # Utility functions
 │   ├── pages/
 │   │   ├── LiveAudit.tsx       # Main audit page
 │   │   ├── Dashboard.tsx       # Model transparency
 │   │   └── Glossary.tsx        # Educational content
 │   ├── services/
 │   │   └── api.ts              # API client
-│   └── App.tsx                 # Root component
+│   ├── App.tsx                 # Root component
+│   ├── main.tsx                # Entry point
+│   └── index.css               # Global styles
 ├── docs/                        # Documentation
 │   ├── README.md               # Documentation index
 │   ├── QUICKSTART.md           # Quick start guide
-│   └── SHAP_VALIDATION.md      # SHAP testing guide
+│   ├── SHAP_INTEGRATION_GUIDE.md # SHAP integration docs
+│   ├── SHAP_VALIDATION.md      # SHAP testing guide
+│   └── COLOR_SCHEME.md         # Color reference
+├── index.html                   # HTML entry point
+├── package.json                 # Frontend dependencies
+├── vite.config.ts               # Vite configuration
+├── tailwind.config.js           # Tailwind CSS config
+├── tsconfig.json                # TypeScript config
 └── README.md                    # This file
 ```
 
@@ -213,7 +226,9 @@ glassbox-ai/
 ## Documentation
 
 - **[QUICKSTART.md](./docs/QUICKSTART.md)** - Get running in 5 minutes
+- **[SHAP_INTEGRATION_GUIDE.md](./docs/SHAP_INTEGRATION_GUIDE.md)** - SHAP integration and usage guide
 - **[SHAP_VALIDATION.md](./docs/SHAP_VALIDATION.md)** - SHAP testing and validation guide
+- **[COLOR_SCHEME.md](./docs/COLOR_SCHEME.md)** - Color scheme reference
 - **[docs/README.md](./docs/README.md)** - Documentation index
 
 For API documentation, visit `http://localhost:8000/docs` when the backend is running.

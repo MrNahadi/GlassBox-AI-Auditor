@@ -26,18 +26,16 @@ Magnitude = Strength of influence (larger absolute value = stronger impact)
 ### 1. Training Phase (One-Time Setup)
 
 ```bash
-cd backend
+cd backend/scripts
 
-# Step 1: Generate synthetic training data
-python generate_data.py
-
-# Step 2: Train the multi-class model (includes SHAP calculation)
-python train_multimodal_1.py
+# Train the enhanced pipeline model (includes SHAP calculation)
+python train_model.py
 
 # This creates:
-# - backend/models/auditor_model.joblib (XGBoost model)
-# - backend/models/shap_explainer.joblib (SHAP explainer)
-# - backend/data/model_stats.json (accuracy, AUC, feature importance)
+# - backend/models/auditor_model_pipeline.joblib (XGBoost model)
+# - backend/models/shap_explainer_pipeline.joblib (SHAP explainer)
+# - backend/data/model_stats_pipeline.json (accuracy, AUC, feature importance)
+# - backend/data/full_dataset_pipeline.csv (40,000 synthetic training records)
 ```
 
 **What happens during training:**
@@ -51,14 +49,15 @@ python train_multimodal_1.py
 
 ```bash
 # Run SHAP validation tests
-python test_shap_validation.py
+cd backend/scripts
+python validate_shap.py
 
 # This will:
 # ✅ Load your trained model
 # ✅ Create 5 test tender profiles (Excellent → High Risk)
 # ✅ Calculate SHAP values for each test case
 # ✅ Validate expected model behavior
-# ✅ Generate visualizations in shap_plots/
+# ✅ Generate visualizations in backend/shap_plots/
 ```
 
 **Validation Checks Performed:**
@@ -87,7 +86,10 @@ backend/shap_plots/
 
 ```bash
 # Start the FastAPI backend
-python app/main.py
+cd backend
+start.bat     # Windows
+# OR
+./start.sh    # Linux/Mac
 ```
 
 **When a tender is audited:**
@@ -160,19 +162,24 @@ python app/main.py
 ## File Structure
 
 ```
-backend/
-├── app/
-│   └── main.py                    # SHAP used in /api/v1/audit endpoint
+AI_Auditor/
 ├── backend/
+│   ├── app/
+│   │   ├── main.py                # SHAP used in /api/v1/audit endpoint
+│   │   └── chart_generator.py     # PDF chart generation
+│   ├── scripts/
+│   │   ├── train_model.py         # Training script (creates SHAP explainer)
+│   │   └── validate_shap.py       # Validation framework
 │   ├── models/
-│   │   ├── auditor_model.joblib   # Trained XGBoost model
-│   │   └── shap_explainer.joblib  # SHAP TreeExplainer (saved)
-│   └── data/
-│       └── model_stats.json       # Includes SHAP-based feature importance
-├── shap_plots/                    # Validation visualizations (optional)
-├── train_multimodal_1.py          # Training script (creates SHAP explainer)
-├── test_shap_validation.py        # Validation framework
-└── SHAP_VALIDATION_README.md      # Detailed validation docs
+│   │   ├── auditor_model_pipeline.joblib   # Trained XGBoost model
+│   │   └── shap_explainer_pipeline.joblib  # SHAP TreeExplainer (saved)
+│   ├── data/
+│   │   ├── model_stats_pipeline.json       # Includes SHAP-based feature importance
+│   │   └── full_dataset_pipeline.csv       # Training dataset (40K records)
+│   └── shap_plots/                # Validation visualizations (generated)
+└── docs/
+    ├── SHAP_INTEGRATION_GUIDE.md  # This file
+    └── SHAP_VALIDATION.md         # Detailed validation docs
 ```
 
 ## When to Run SHAP Validation
@@ -232,13 +239,13 @@ python -c "import shap; print(shap.__version__)"
 
 **Cause:** Multi-class models have `expected_value` as list instead of scalar
 
-**Fix:** Already handled in `test_shap_validation.py` (updated version)
+**Fix:** Already handled in `scripts/validate_shap.py` (updated version)
 
 ### Issue: Dashboard shows no SHAP values
 
 **Cause:** Backend not returning `average_shap_values` in model stats
 
-**Fix:** Ensure `train_multimodal_1.py` includes:
+**Fix:** Ensure `scripts/train_model.py` includes:
 
 ```python
 model_stats = {
@@ -253,7 +260,7 @@ model_stats = {
 
 ### Custom Test Tenders
 
-Edit `test_shap_validation.py` to add your own test cases:
+Edit `backend/scripts/validate_shap.py` to add your own test cases:
 
 ```python
 test_samples = {
@@ -340,10 +347,10 @@ jobs:
 - **Original Paper**: "A Unified Approach to Interpreting Model Predictions" (Lundberg & Lee, 2017)
 - **Backend Implementation**: `backend/app/main.py` - search for `shap_explainer`
 - **Frontend Visualization**: `src/pages/Dashboard.tsx` and `src/components/RiskResults.tsx`
-- **Validation Framework**: `backend/test_shap_validation.py`
+- **Validation Framework**: `backend/scripts/validate_shap.py`
 
 ---
 
-**Questions?** Check `backend/SHAP_VALIDATION_README.md` for detailed validation test documentation.
+**Questions?** Check `docs/SHAP_VALIDATION.md` for detailed validation test documentation.
 
 **Last Updated**: November 7, 2025

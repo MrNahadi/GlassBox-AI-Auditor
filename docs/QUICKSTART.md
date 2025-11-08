@@ -11,18 +11,21 @@ This guide will get you up and running in under 5 minutes.
 ## Step 1: Backend Setup (2 minutes)
 
 ### Option A: Automated (Linux/Mac)
+
 ```bash
 cd backend
 ./start.sh
 ```
 
 ### Option B: Automated (Windows)
+
 ```cmd
 cd backend
 start.bat
 ```
 
 ### Option C: Manual Setup
+
 ```bash
 cd backend
 
@@ -37,11 +40,12 @@ pip install -r requirements.txt
 echo "GEMINI_API_KEY=your_api_key_here" > .env
 
 # Train the model (generates synthetic data)
-python train.py
+cd scripts
+python train_model.py
 
 # Start the server
-cd app
-python main.py
+cd ..
+python app/main.py
 ```
 
 The backend will start on **http://localhost:8000**
@@ -77,21 +81,25 @@ The frontend will start on **http://localhost:5173**
 ## Troubleshooting
 
 ### Backend won't start
+
 - Check Python version: `python --version` (must be 3.10+)
 - Verify virtual environment is activated (you'll see `(venv)` in prompt)
 - Check if port 8000 is available
 
 ### Frontend won't start
+
 - Check Node version: `node --version` (must be 18+)
 - Run `npm install` again if dependencies are missing
 - Check if port 5173 is available
 
 ### "AI summary unavailable" message
+
 - Verify your Gemini API key is correct in `backend/.env`
 - Check your internet connection
 - The risk assessment will still work without Gemini
 
 ### Model training fails
+
 - Ensure you have enough disk space (models are ~50MB)
 - Check Python dependencies are fully installed
 - Try running `pip install -r requirements.txt` again
@@ -106,6 +114,7 @@ The frontend will start on **http://localhost:5173**
 ## Sample Test Cases
 
 ### Low Risk Tender
+
 - Value: 1,000,000 KES
 - Bidders: 8
 - Duration: 90 days
@@ -113,6 +122,7 @@ The frontend will start on **http://localhost:5173**
 - PEP: No
 
 ### High Risk Tender
+
 - Value: 500,000,000 KES
 - Bidders: 1
 - Duration: 365 days
@@ -120,6 +130,7 @@ The frontend will start on **http://localhost:5173**
 - PEP: Yes
 
 ### Medium Risk Tender
+
 - Value: 25,000,000 KES
 - Bidders: 4
 - Duration: 120 days
