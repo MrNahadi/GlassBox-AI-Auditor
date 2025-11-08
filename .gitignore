@@ -1,0 +1,132 @@
+# Logs
+logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+lerna-debug.log*
+
+# Dependencies
+node_modules
+dist
+dist-ssr
+*.local
+
+# Environment variables
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+build/
+develop-eggs/
+downloads/
+eggs/
+.eggs/
+# lib/  # Commented out - too broad, catches frontend lib folders
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+MANIFEST
+venv/
+env/
+ENV/
+env.bak/
+venv.bak/
+
+# Testing
+/coverage
+*.cover
+*.coverage
+.coverage.*
+.hypothesis/
+.pytest_cache/
+htmlcov/
+
+# Production builds
+/build
+
+# Editor directories and files
+.vscode/*
+!.vscode/extensions.json
+.idea
+.DS_Store
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+*.swp
+*.swo
+*~
+*.sublime-project
+*.sublime-workspace
+
+# Bolt AI tool metadata
+.bolt/
+
+# OS
+Thumbs.db
+Desktop.ini
+$RECYCLE.BIN/
+
+# Machine Learning Models (large files)
+# Keep the model files but track them with Git LFS if needed
+backend/models/*.joblib
+backend/models/*.pkl
+backend/models/*.h5
+backend/models/*.pt
+backend/models/*.pth
+
+# Data files (large datasets)
+backend/data/full_dataset*.csv
+backend/data/*_dataset.csv
+
+# Keep model stats for reference
+!backend/data/model_stats*.json
+
+# Jupyter Notebook
+.ipynb_checkpoints/
+*.ipynb
+
+# TypeScript
+*.tsbuildinfo
+
+# Temporary files
+*.tmp
+*.temp
+*.bak
+*.cache
+
+# Vite
+.vite/
+
+# API keys and secrets (IMPORTANT!)
+.env
+.env.*
+!.env.example
+*_key.txt
+*_secret.txt
+credentials.json
+secrets.json
+
+# Generated reports (temporary files)
+# Uncomment if you don't want to track generated reports
+# *.pdf
+
+# Chart images (temporary generated files)
+backend/shap_plots/*.png
+backend/shap_plots/*.jpg
