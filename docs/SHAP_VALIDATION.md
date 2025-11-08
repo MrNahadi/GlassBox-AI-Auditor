@@ -49,7 +49,7 @@ This document explains the SHAP (SHapley Additive exPlanations) validation syste
 
 ```powershell
 # Navigate to backend directory
-cd C:\Users\muigu\Downloads\GAI-v3\project\backend
+cd .\backend
 
 # Run the SHAP validation test
 python test_shap_validation.py
