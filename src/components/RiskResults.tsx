@@ -21,6 +21,9 @@ export function RiskResults({ results }: RiskResultsProps) {
     return () => clearTimeout(timer);
   }, []);
 
+  // Check if current theme is dark mode (dark, slate, midnight, ocean)
+  const isDarkMode = theme !== 'light';
+
   const getRiskColor = (level: string) => {
     // Minimal and Low = Green
     if (level === 'Minimal' || level === 'Low') return '#22c55e';
@@ -60,10 +63,10 @@ export function RiskResults({ results }: RiskResultsProps) {
 
   const chartColors = {
     risk: getRiskColor(results.risk_level),
-    safe: theme === 'dark' ? '#374151' : '#e5e7eb',
+    safe: isDarkMode ? '#374151' : '#e5e7eb',
     radar: getRiskColor(results.risk_level),
-    grid: theme === 'dark' ? '#4b5563' : '#d1d5db',
-    text: theme === 'dark' ? '#e5e7eb' : '#374151',
+    grid: isDarkMode ? '#4b5563' : '#d1d5db',
+    text: isDarkMode ? '#e5e7eb' : '#374151',
   };
 
   const getFeatureColor = (value: number) => {
@@ -142,18 +145,18 @@ export function RiskResults({ results }: RiskResultsProps) {
                 />
                 <Tooltip
                   contentStyle={{
-                    backgroundColor: theme === 'dark' ? '#1f2937' : '#ffffff',
-                    border: `1px solid ${theme === 'dark' ? '#374151' : '#e5e7eb'}`,
+                    backgroundColor: isDarkMode ? '#1f2937' : '#ffffff',
+                    border: `1px solid ${isDarkMode ? '#374151' : '#e5e7eb'}`,
                     borderRadius: '8px',
                     padding: '12px',
-                    color: theme === 'dark' ? '#f3f4f6' : '#1f2937',
+                    color: isDarkMode ? '#f3f4f6' : '#1f2937',
                   }}
                   labelStyle={{ 
-                    color: theme === 'dark' ? '#f9fafb' : '#1f2937',
+                    color: isDarkMode ? '#f9fafb' : '#1f2937',
                     fontWeight: 'bold'
                   }}
                   itemStyle={{
-                    color: theme === 'dark' ? '#e5e7eb' : '#374151',
+                    color: isDarkMode ? '#e5e7eb' : '#374151',
                   }}
                 />
               </RadarChart>
@@ -236,19 +239,19 @@ export function RiskResults({ results }: RiskResultsProps) {
                 <ReferenceLine x={0} stroke={chartColors.text} strokeWidth={2} />
                 <Tooltip
                   contentStyle={{
-                    backgroundColor: theme === 'dark' ? '#1f2937' : '#ffffff',
-                    border: `1px solid ${theme === 'dark' ? '#374151' : '#e5e7eb'}`,
+                    backgroundColor: isDarkMode ? '#1f2937' : '#ffffff',
+                    border: `1px solid ${isDarkMode ? '#374151' : '#e5e7eb'}`,
                     borderRadius: '8px',
                     padding: '12px',
-                    color: theme === 'dark' ? '#f3f4f6' : '#1f2937',
+                    color: isDarkMode ? '#f3f4f6' : '#1f2937',
                   }}
                   labelStyle={{ 
-                    color: theme === 'dark' ? '#f9fafb' : '#1f2937', 
+                    color: isDarkMode ? '#f9fafb' : '#1f2937', 
                     fontWeight: 'bold',
                     marginBottom: '4px'
                   }}
                   itemStyle={{
-                    color: theme === 'dark' ? '#e5e7eb' : '#374151',
+                    color: isDarkMode ? '#e5e7eb' : '#374151',
                   }}
                   formatter={(value: number) => [
                     `${value > 0 ? '+' : ''}${value.toFixed(4)}`,

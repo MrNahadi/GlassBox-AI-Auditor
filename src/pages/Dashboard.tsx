@@ -3,7 +3,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../co
 import { Alert, AlertDescription } from '../components/ui/alert';
 import { Skeleton } from '../components/ui/skeleton';
 import { AlertCircle, Award, Target, Database } from 'lucide-react';
-import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
+import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, ReferenceLine, Cell } from 'recharts';
 import { getModelStats, type ModelStats } from '../services/api';
 import { useTheme } from '../contexts/ThemeContext';
 
@@ -12,6 +12,9 @@ export function Dashboard() {
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const { theme } = useTheme();
+  
+  // Check if current theme is dark mode
+  const isDarkMode = theme !== 'light';
 
   useEffect(() => {
     loadStats();
@@ -37,8 +40,11 @@ export function Dashboard() {
           if (displayName.startsWith('Text')) {
             displayName = displayName.replace('Text', '📝');
           }
+          // Truncate long names for better display
+          const shortName = displayName.length > 35 ? displayName.substring(0, 32) + '...' : displayName;
           return {
-            name: displayName,
+            name: shortName,
+            fullName: displayName,
             value: value,
             absValue: Math.abs(value),
             isText: key.toLowerCase().includes('text'),
@@ -47,22 +53,22 @@ export function Dashboard() {
     : [];
 
   const chartColors = {
-    positive: theme === 'dark' ? '#ef4444' : '#dc2626',
-    negative: theme === 'dark' ? '#22c55e' : '#16a34a',
-    grid: theme === 'dark' ? '#374151' : '#e5e7eb',
-    text: theme === 'dark' ? '#e5e7eb' : '#374151',
+    positive: isDarkMode ? '#ef4444' : '#dc2626',
+    negative: isDarkMode ? '#22c55e' : '#16a34a',
+    grid: isDarkMode ? '#374151' : '#e5e7eb',
+    text: isDarkMode ? '#e5e7eb' : '#374151',
   };
 
   if (isLoading) {
     return (
-      <div className="space-y-8">
-        <Skeleton className="h-10 w-64" />
-        <div className="grid gap-6 md:grid-cols-3">
-          <Skeleton className="h-32" />
-          <Skeleton className="h-32" />
-          <Skeleton className="h-32" />
+      <div className="space-y-6">
+        <Skeleton className="h-8 w-64" />
+        <div className="grid gap-4 md:grid-cols-3">
+          <Skeleton className="h-28" />
+          <Skeleton className="h-28" />
+          <Skeleton className="h-28" />
         </div>
-        <Skeleton className="h-96" />
+        <Skeleton className="h-80" />
       </div>
     );
   }
@@ -77,15 +83,15 @@ export function Dashboard() {
   }
 
   return (
-    <div className="space-y-8">
-      <div className="space-y-2">
+    <div className="space-y-6">
+      <div>
         <h2 className="text-3xl font-bold tracking-tight text-foreground">Model Transparency Dashboard</h2>
-        <p className="text-muted-foreground">
+        <p className="text-base text-muted-foreground">
           Performance metrics and insights into how the AI model assesses tender risks.
         </p>
       </div>
 
-      <div className="grid gap-6 md:grid-cols-3">
+      <div className="grid gap-4 md:grid-cols-3">
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">Model Accuracy</CardTitle>
@@ -95,7 +101,7 @@ export function Dashboard() {
             <div className="text-3xl font-bold text-foreground">
               {((stats?.model_accuracy || 0) * 100).toFixed(2)}%
             </div>
-            <p className="text-xs text-muted-foreground mt-1">
+            <p className="text-base text-muted-foreground mt-1">
               Correct predictions on test data
             </p>
           </CardContent>
@@ -110,7 +116,7 @@ export function Dashboard() {
             <div className="text-3xl font-bold text-foreground">
               {((stats?.model_auc_score || 0) * 100).toFixed(2)}%
             </div>
-            <p className="text-xs text-muted-foreground mt-1">
+            <p className="text-base text-muted-foreground mt-1">
               Model discrimination ability
             </p>
           </CardContent>
@@ -125,7 +131,7 @@ export function Dashboard() {
             <div className="text-3xl font-bold text-foreground">
               {(stats?.total_tenders_trained_on || 0).toLocaleString()}
             </div>
-            <p className="text-xs text-muted-foreground mt-1">
+            <p className="text-base text-muted-foreground mt-1">
               Synthetic tender records
             </p>
           </CardContent>
@@ -136,50 +142,87 @@ export function Dashboard() {
         <CardHeader>
           <CardTitle>Top 10 Risk Factors (SHAP Importance)</CardTitle>
           <CardDescription>
-            Feature importance by magnitude - longer bars indicate stronger overall impact on predictions (all values shown are positive magnitudes)
+            Mean SHAP values across training data - Red bars increase risk, Green bars decrease risk
           </CardDescription>
         </CardHeader>
         <CardContent>
-          <ResponsiveContainer width="100%" height={500}>
-            <BarChart data={chartData} layout="vertical" margin={{ left: 150, right: 30, top: 20, bottom: 20 }}>
-              <CartesianGrid strokeDasharray="3 3" stroke={chartColors.grid} opacity={0.3} />
-              <XAxis
-                type="number"
-                tick={{ fill: chartColors.text, fontSize: 12 }}
-                label={{ value: 'Mean Absolute SHAP Value (Feature Importance)', position: 'bottom', fill: chartColors.text, offset: 0 }}
-              />
-              <YAxis
-                type="category"
-                dataKey="name"
-                tick={{ fill: chartColors.text, fontSize: 13 }}
-                width={140}
-              />
-              <Tooltip
-                contentStyle={{
-                  backgroundColor: theme === 'dark' ? '#1f2937' : '#ffffff',
-                  border: `1px solid ${chartColors.grid}`,
-                  borderRadius: '8px',
-                  padding: '12px',
-                }}
-                labelStyle={{ color: chartColors.text, fontWeight: 'bold', marginBottom: '4px' }}
-                formatter={(value: number) => [
-                  `${value.toFixed(4)}`,
-                  'Importance Magnitude'
-                ]}
-              />
-              <Bar
-                dataKey="absValue"
-                radius={8}
-                barSize={32}
-                fill={chartColors.positive}
-              />
-            </BarChart>
-          </ResponsiveContainer>
+          <div className="space-y-3">
+            <p className="text-base text-muted-foreground">
+              Diverging bar chart showing the average impact of each feature on risk predictions across all training data. 
+              Red bars increase risk (positive SHAP), green bars decrease risk (negative SHAP).
+            </p>
+            
+            <ResponsiveContainer width="100%" height={360}>
+              <BarChart 
+                data={chartData} 
+                layout="vertical" 
+                margin={{ left: 20, right: 20, top: 5, bottom: 20 }}
+              >
+                <CartesianGrid strokeDasharray="3 3" stroke={chartColors.grid} opacity={0.3} />
+                <XAxis
+                  type="number"
+                  tick={{ fill: chartColors.text, fontSize: 11 }}
+                  label={{ 
+                    value: 'Mean SHAP Value (Average Impact on Risk Score)', 
+                    position: 'bottom', 
+                    fill: chartColors.text, 
+                    offset: 0, 
+                    fontSize: 12 
+                  }}
+                />
+                <YAxis
+                  type="category"
+                  dataKey="name"
+                  hide={true}
+                />
+                <ReferenceLine x={0} stroke={chartColors.text} strokeWidth={2} />
+                <Tooltip
+                  contentStyle={{
+                    backgroundColor: isDarkMode ? '#1f2937' : '#ffffff',
+                    border: `1px solid ${isDarkMode ? '#374151' : '#e5e7eb'}`,
+                    borderRadius: '8px',
+                    padding: '12px',
+                    color: isDarkMode ? '#f3f4f6' : '#1f2937',
+                  }}
+                  labelStyle={{ 
+                    color: isDarkMode ? '#f9fafb' : '#1f2937', 
+                    fontWeight: 'bold', 
+                    marginBottom: '4px' 
+                  }}
+                  itemStyle={{
+                    color: isDarkMode ? '#e5e7eb' : '#374151',
+                  }}
+                  formatter={(value: number) => [
+                    `${value > 0 ? '+' : ''}${value.toFixed(4)}`,
+                    value >= 0 ? 'Increases Risk' : 'Decreases Risk'
+                  ]}
+                  labelFormatter={(label: string, payload: any) => {
+                    if (payload && payload[0]) {
+                      return payload[0].payload.fullName;
+                    }
+                    return label;
+                  }}
+                />
+                <Bar dataKey="value" barSize={18} radius={[8, 8, 8, 8]}>
+                  {chartData.map((entry, index) => (
+                    <Cell 
+                      key={`cell-${index}`} 
+                      fill={entry.value >= 0 ? '#ef4444' : '#22c55e'}
+                    />
+                  ))}
+                </Bar>
+              </BarChart>
+            </ResponsiveContainer>
+          </div>
 
-          <div className="mt-4 flex flex-wrap items-center gap-4 text-sm text-muted-foreground">
+          <div className="mt-4 flex flex-wrap items-center gap-4 text-base text-muted-foreground">
             <div className="flex items-center gap-2">
-              <div className="w-3 h-3 rounded" style={{ backgroundColor: chartColors.positive }}></div>
-              <span>Feature Importance</span>
+              <div className="w-3 h-3 rounded" style={{ backgroundColor: '#ef4444' }}></div>
+              <span>Increases Risk (Positive SHAP)</span>
+            </div>
+            <div className="flex items-center gap-2">
+              <div className="w-3 h-3 rounded" style={{ backgroundColor: '#22c55e' }}></div>
+              <span>Decreases Risk (Negative SHAP)</span>
             </div>
             <div className="h-4 w-px bg-border"></div>
             <div className="flex items-center gap-2">
@@ -193,36 +236,37 @@ export function Dashboard() {
           </div>
 
           <div className="mt-6 space-y-3">
-            <h4 className="text-sm font-semibold text-foreground">Understanding the Metrics</h4>
-            <div className="grid gap-3 text-sm">
-              <div className="rounded-lg border border-border p-3">
-                <p className="font-medium text-foreground mb-1">Model Accuracy</p>
-                <p className="text-muted-foreground">
+            <h4 className="text-lg font-semibold text-foreground">Understanding the Metrics</h4>
+            <div className="grid gap-3 lg:grid-cols-2">
+              <div className="rounded-lg border border-border p-3 space-y-1">
+                <p className="font-medium text-foreground">Model Accuracy</p>
+                <p className="text-base text-muted-foreground">
                   The percentage of tenders correctly classified during testing. Our model achieves {((stats?.model_accuracy || 0) * 100).toFixed(1)}% accuracy.
                 </p>
               </div>
-              <div className="rounded-lg border border-border p-3">
-                <p className="font-medium text-foreground mb-1">AUC Score</p>
-                <p className="text-muted-foreground">
+              <div className="rounded-lg border border-border p-3 space-y-1">
+                <p className="font-medium text-foreground">AUC Score</p>
+                <p className="text-base text-muted-foreground">
                   Area Under the ROC Curve - measures how well the model distinguishes between risk levels. A score above 90% is excellent.
                 </p>
               </div>
-              <div className="rounded-lg border border-border p-3">
-                <p className="font-medium text-foreground mb-1">SHAP Values Explained</p>
-                <p className="text-muted-foreground">
-                  SHAP (SHapley Additive exPlanations) values show the importance of each feature in the model's predictions. 
-                  This chart displays the <strong>mean absolute SHAP values</strong> across all training data - showing which features have the strongest overall impact on risk scores, regardless of direction. 
-                  Higher values indicate features that more strongly influence the model's decisions. The top 10 most impactful features are shown.
+              <div className="rounded-lg border border-border p-3 space-y-1 lg:col-span-2">
+                <p className="font-medium text-foreground">SHAP Values Explained</p>
+                <p className="text-base text-muted-foreground">
+                  SHAP (SHapley Additive exPlanations) values show the average impact each feature has on risk predictions across all training data. 
+                  <strong className="text-red-600 dark:text-red-400"> Positive values (red bars)</strong> indicate features that typically increase risk scores, 
+                  while <strong className="text-green-600 dark:text-green-400">negative values (green bars)</strong> indicate features that typically decrease risk scores. 
+                  The length of each bar shows the magnitude of impact - longer bars mean stronger influence on the model's decisions.
                 </p>
               </div>
-              <div className="rounded-lg border border-border p-3 bg-blue-50 dark:bg-blue-950/20">
-                <p className="font-medium text-foreground mb-1">💡 How to Read This Chart</p>
-                <p className="text-muted-foreground">
-                  <strong>Bar length = Importance:</strong> Longer bars indicate features that have a stronger overall influence on predictions. 
-                  These values represent the <em>magnitude</em> of impact averaged across all tenders in the training dataset.<br/>
-                  <strong>📝 Text features:</strong> Derived from tender description analysis (keywords, phrases).<br/>
-                  <strong>📊 Numeric features:</strong> Direct values like tender value, bidders, complexity, etc.<br/>
-                  <strong>Note:</strong> For individual tender audits, you'll see directional SHAP values (positive/negative) showing which specific features increased or decreased that tender's risk score.
+              <div className="rounded-lg border border-border p-3 space-y-1 bg-blue-50 dark:bg-blue-950/20 lg:col-span-2">
+                <p className="font-medium text-foreground">💡 How to Read This Chart</p>
+                <p className="text-base text-muted-foreground">
+                  <strong>Diverging bars show direction:</strong> This chart displays both the direction and magnitude of each feature's average impact. 
+                  Features on the right (red) generally push risk scores higher, while features on the left (green) generally push scores lower.
+                  <strong className="block mt-1">📝 Text features:</strong> Derived from tender description analysis using natural language processing.
+                  <strong className="block">📊 Numeric features:</strong> Direct quantitative values like tender value, number of bidders, project duration, and complexity scores.
+                  <strong className="block mt-1">Note:</strong> These are <em>average</em> SHAP values across all training data. For individual tender audits, you'll see specific SHAP values showing exactly how each feature influenced that particular tender's risk score.
                 </p>
               </div>
             </div>
