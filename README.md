@@ -15,7 +15,7 @@ Glassbox AI analyzes government tenders in real-time using a multi-modal approac
 
 The system provides instant risk scoring with SHAP-based explainability and AI-generated insights powered by Google's Gemini API.
 
-[![Introducing GlassBox AI](https://youtu.be/k59oLiqjEag)](https://youtu.be/k59oLiqjEag)
+[[Introducing GlassBox AI](https://youtu.be/k59oLiqjEag)](https://youtu.be/k59oLiqjEag)
 
 ## Key Features
 
