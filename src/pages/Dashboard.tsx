@@ -3,7 +3,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../co
 import { Alert, AlertDescription } from '../components/ui/alert';
 import { Skeleton } from '../components/ui/skeleton';
 import { AlertCircle, Award, Target, Database } from 'lucide-react';
-import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, ReferenceLine, Cell } from 'recharts';
+import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 import { getModelStats, type ModelStats } from '../services/api';
 import { useTheme } from '../contexts/ThemeContext';
 
@@ -51,10 +51,6 @@ export function Dashboard() {
     negative: theme === 'dark' ? '#22c55e' : '#16a34a',
     grid: theme === 'dark' ? '#374151' : '#e5e7eb',
     text: theme === 'dark' ? '#e5e7eb' : '#374151',
-  };
-
-  const getBarColor = (value: number) => {
-    return value >= 0 ? chartColors.positive : chartColors.negative;
   };
 
   if (isLoading) {
@@ -138,9 +134,9 @@ export function Dashboard() {
 
       <Card>
         <CardHeader>
-          <CardTitle>Top 10 Risk Factors (SHAP Values)</CardTitle>
+          <CardTitle>Top 10 Risk Factors (SHAP Importance)</CardTitle>
           <CardDescription>
-            Diverging bar chart: Red bars increase risk (positive SHAP), green bars decrease risk (negative SHAP)
+            Feature importance by magnitude - longer bars indicate stronger overall impact on predictions (all values shown are positive magnitudes)
           </CardDescription>
         </CardHeader>
         <CardContent>
@@ -150,7 +146,7 @@ export function Dashboard() {
               <XAxis
                 type="number"
                 tick={{ fill: chartColors.text, fontSize: 12 }}
-                label={{ value: 'SHAP Value (Impact on Risk)', position: 'bottom', fill: chartColors.text, offset: 0 }}
+                label={{ value: 'Mean Absolute SHAP Value (Feature Importance)', position: 'bottom', fill: chartColors.text, offset: 0 }}
               />
               <YAxis
                 type="category"
@@ -158,7 +154,6 @@ export function Dashboard() {
                 tick={{ fill: chartColors.text, fontSize: 13 }}
                 width={140}
               />
-              <ReferenceLine x={0} stroke={chartColors.text} strokeWidth={2} />
               <Tooltip
                 contentStyle={{
                   backgroundColor: theme === 'dark' ? '#1f2937' : '#ffffff',
@@ -168,30 +163,23 @@ export function Dashboard() {
                 }}
                 labelStyle={{ color: chartColors.text, fontWeight: 'bold', marginBottom: '4px' }}
                 formatter={(value: number) => [
-                  `${value > 0 ? '+' : ''}${value.toFixed(4)}`,
-                  value >= 0 ? 'Increases Risk' : 'Decreases Risk'
+                  `${value.toFixed(4)}`,
+                  'Importance Magnitude'
                 ]}
               />
               <Bar
-                dataKey="value"
+                dataKey="absValue"
                 radius={8}
                 barSize={32}
-              >
-                {chartData.map((entry, index) => (
-                  <Cell key={`cell-${index}`} fill={getBarColor(entry.value)} />
-                ))}
-              </Bar>
+                fill={chartColors.positive}
+              />
             </BarChart>
           </ResponsiveContainer>
 
           <div className="mt-4 flex flex-wrap items-center gap-4 text-sm text-muted-foreground">
             <div className="flex items-center gap-2">
               <div className="w-3 h-3 rounded" style={{ backgroundColor: chartColors.positive }}></div>
-              <span>Increases Risk (Positive SHAP)</span>
-            </div>
-            <div className="flex items-center gap-2">
-              <div className="w-3 h-3 rounded" style={{ backgroundColor: chartColors.negative }}></div>
-              <span>Decreases Risk (Negative SHAP)</span>
+              <span>Feature Importance</span>
             </div>
             <div className="h-4 w-px bg-border"></div>
             <div className="flex items-center gap-2">
@@ -222,17 +210,19 @@ export function Dashboard() {
               <div className="rounded-lg border border-border p-3">
                 <p className="font-medium text-foreground mb-1">SHAP Values Explained</p>
                 <p className="text-muted-foreground">
-                  SHAP (SHapley Additive exPlanations) values show how each feature pushes the risk score up (positive/red) or down (negative/green). 
-                  This diverging bar chart displays the average SHAP impact across all predictions in the training data. 
-                  Features extending right increase risk, while those extending left decrease risk. Only the top 10 most impactful features are shown.
+                  SHAP (SHapley Additive exPlanations) values show the importance of each feature in the model's predictions. 
+                  This chart displays the <strong>mean absolute SHAP values</strong> across all training data - showing which features have the strongest overall impact on risk scores, regardless of direction. 
+                  Higher values indicate features that more strongly influence the model's decisions. The top 10 most impactful features are shown.
                 </p>
               </div>
               <div className="rounded-lg border border-border p-3 bg-blue-50 dark:bg-blue-950/20">
                 <p className="font-medium text-foreground mb-1">💡 How to Read This Chart</p>
                 <p className="text-muted-foreground">
-                  <strong>Positive (Red) bars:</strong> Features that typically increase risk scores. For example, high tender values or PEP involvement push predictions toward "High Risk".<br/>
-                  <strong>Negative (Green) bars:</strong> Features that typically decrease risk scores. For example, many bidders or low complexity push predictions toward "Low Risk".<br/>
-                  <strong>Length = Impact:</strong> Longer bars (regardless of direction) indicate features with stronger influence on the model's decisions.
+                  <strong>Bar length = Importance:</strong> Longer bars indicate features that have a stronger overall influence on predictions. 
+                  These values represent the <em>magnitude</em> of impact averaged across all tenders in the training dataset.<br/>
+                  <strong>📝 Text features:</strong> Derived from tender description analysis (keywords, phrases).<br/>
+                  <strong>📊 Numeric features:</strong> Direct values like tender value, bidders, complexity, etc.<br/>
+                  <strong>Note:</strong> For individual tender audits, you'll see directional SHAP values (positive/negative) showing which specific features increased or decreased that tender's risk score.
                 </p>
               </div>
             </div>
