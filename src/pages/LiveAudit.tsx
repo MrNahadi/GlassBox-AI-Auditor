@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useRef } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
@@ -11,7 +11,8 @@ import { Slider } from '../components/ui/slider';
 import { Switch } from '../components/ui/switch';
 import { Textarea } from '../components/ui/textarea';
 import { Alert, AlertDescription } from '../components/ui/alert';
-import { Skeleton } from '../components/ui/skeleton';
+import { AuditProgress } from '../components/ui/audit-progress';
+import { useToast } from '../hooks/use-toast';
 import { auditTender, generateReport, type AuditResponse, type TenderInput } from '../services/api';
 import { RiskResults } from '../components/RiskResults';
 
@@ -48,6 +49,8 @@ export function LiveAudit() {
   const [complexity, setComplexity] = useState(5);
   const [riskMode, setRiskMode] = useState<'button' | 'slider'>('button');
   const [targetRiskLevel, setTargetRiskLevel] = useState(50);
+  const resultsRef = useRef<HTMLDivElement>(null);
+  const { toast } = useToast();
 
   const { register, handleSubmit, formState: { errors }, setValue } = useForm<TenderFormData>({
     resolver: zodResolver(tenderSchema),
@@ -70,8 +73,26 @@ export function LiveAudit() {
       setFormData(input);
       const response = await auditTender(input);
       setResults(response);
+      
+      // Show success toast
+      toast({
+        title: "✅ Audit Complete!",
+        description: `Risk Level: ${response.risk_level} (${(response.risk_score * 100).toFixed(1)}%)`,
+        duration: 5000,
+      });
+      
+      // Smooth scroll to results
+      setTimeout(() => {
+        resultsRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }, 100);
     } catch (err) {
       setError('Failed to audit tender. Please ensure the backend server is running.');
+      toast({
+        variant: "destructive",
+        title: "❌ Audit Failed",
+        description: "Could not connect to the backend server. Please try again.",
+        duration: 5000,
+      });
     } finally {
       setIsLoading(false);
     }
@@ -169,30 +190,42 @@ export function LiveAudit() {
       a.click();
       window.URL.revokeObjectURL(url);
       document.body.removeChild(a);
+      
+      toast({
+        title: "📄 Report Downloaded!",
+        description: "Your audit report has been saved successfully.",
+        duration: 3000,
+      });
     } catch (err) {
       setError('Failed to generate report');
+      toast({
+        variant: "destructive",
+        title: "❌ Download Failed",
+        description: "Could not generate the PDF report. Please try again.",
+        duration: 5000,
+      });
     }
   };
 
   return (
-    <div className="space-y-8">
-      <div className="space-y-2">
-        <h2 className="text-3xl font-bold tracking-tight text-foreground">Live Tender Audit</h2>
-        <p className="text-muted-foreground">
+    <div className="space-y-6">
+      <div className="space-y-1">
+        <h2 className="text-2xl font-bold tracking-tight text-foreground">Live Tender Audit</h2>
+        <p className="text-sm text-muted-foreground">
           Enter tender details to receive an immediate risk assessment with AI-powered insights.
         </p>
       </div>
 
-      <div className="grid gap-8 lg:grid-cols-2">
+      <div className="grid gap-6 lg:grid-cols-2">
         <Card>
-          <CardHeader>
-            <CardTitle>Tender Information</CardTitle>
-            <CardDescription>Fill in the details of the tender to audit</CardDescription>
+          <CardHeader className="pb-4">
+            <CardTitle className="text-lg">Tender Information</CardTitle>
+            <CardDescription className="text-sm">Fill in the details of the tender to audit</CardDescription>
           </CardHeader>
           <CardContent>
-            <div className="mb-6 space-y-4">
+            <div className="mb-4 space-y-3">
               <div className="flex items-center justify-between">
-                <Label className="text-base font-semibold">Quick Fill</Label>
+                <Label className="text-sm font-semibold">Quick Fill</Label>
                 <Button
                   type="button"
                   variant="outline"
@@ -271,83 +304,87 @@ export function LiveAudit() {
               )}
             </div>
 
-            <div className="border-t border-border my-6"></div>
+            <div className="border-t border-border my-4"></div>
 
-            <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
-              <div className="space-y-2">
-                <Label htmlFor="tender_title">Tender Title</Label>
+            <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
+              <div className="space-y-1.5">
+                <Label htmlFor="tender_title" className="text-sm">Tender Title</Label>
                 <Input
                   id="tender_title"
                   placeholder="e.g., Road Construction Project"
                   {...register('tender_title')}
                   disabled={isLoading}
+                  className="h-9"
                 />
                 {errors.tender_title && (
-                  <p className="text-sm text-destructive">{errors.tender_title.message}</p>
+                  <p className="text-xs text-destructive">{errors.tender_title.message}</p>
                 )}
               </div>
 
-              <div className="space-y-2">
-                <Label htmlFor="tender_description">Tender Description</Label>
+              <div className="space-y-1.5">
+                <Label htmlFor="tender_description" className="text-sm">Tender Description</Label>
                 <Textarea
                   id="tender_description"
                   placeholder="Describe the procurement process, timeline, and any special circumstances..."
                   {...register('tender_description')}
                   disabled={isLoading}
-                  rows={4}
-                  className="resize-none"
+                  rows={3}
+                  className="resize-none text-sm"
                 />
                 {errors.tender_description && (
-                  <p className="text-sm text-destructive">{errors.tender_description.message}</p>
+                  <p className="text-xs text-destructive">{errors.tender_description.message}</p>
                 )}
               </div>
 
-              <div className="space-y-2">
-                <Label htmlFor="tender_value_kes">Tender Value (KES)</Label>
-                <Input
-                  id="tender_value_kes"
-                  type="number"
-                  placeholder="e.g., 5000000"
-                  {...register('tender_value_kes')}
-                  disabled={isLoading}
-                />
-                {errors.tender_value_kes && (
-                  <p className="text-sm text-destructive">{errors.tender_value_kes.message}</p>
-                )}
-              </div>
+              <div className="grid gap-3 sm:grid-cols-2">
+                <div className="space-y-1.5">
+                  <Label htmlFor="tender_value_kes" className="text-sm">Tender Value (KES)</Label>
+                  <Input
+                    id="tender_value_kes"
+                    type="number"
+                    placeholder="e.g., 5000000"
+                    {...register('tender_value_kes')}
+                    disabled={isLoading}
+                    className="h-9"
+                  />
+                  {errors.tender_value_kes && (
+                    <p className="text-xs text-destructive">{errors.tender_value_kes.message}</p>
+                  )}
+                </div>
 
-              <div className="grid gap-4 sm:grid-cols-2">
-                <div className="space-y-2">
-                  <Label htmlFor="number_of_bidders">Number of Bidders</Label>
+                <div className="space-y-1.5">
+                  <Label htmlFor="number_of_bidders" className="text-sm">Number of Bidders</Label>
                   <Input
                     id="number_of_bidders"
                     type="number"
                     placeholder="e.g., 5"
                     {...register('number_of_bidders')}
                     disabled={isLoading}
+                    className="h-9"
                   />
                   {errors.number_of_bidders && (
-                    <p className="text-sm text-destructive">{errors.number_of_bidders.message}</p>
-                  )}
-                </div>
-
-                <div className="space-y-2">
-                  <Label htmlFor="project_duration_days">Duration (Days)</Label>
-                  <Input
-                    id="project_duration_days"
-                    type="number"
-                    placeholder="e.g., 180"
-                    {...register('project_duration_days')}
-                    disabled={isLoading}
-                  />
-                  {errors.project_duration_days && (
-                    <p className="text-sm text-destructive">{errors.project_duration_days.message}</p>
+                    <p className="text-xs text-destructive">{errors.number_of_bidders.message}</p>
                   )}
                 </div>
               </div>
 
-              <div className="space-y-2">
-                <Label htmlFor="process_complexity">
+              <div className="space-y-1.5">
+                <Label htmlFor="project_duration_days" className="text-sm">Project Duration (Days)</Label>
+                <Input
+                  id="project_duration_days"
+                  type="number"
+                  placeholder="e.g., 180"
+                  {...register('project_duration_days')}
+                  disabled={isLoading}
+                  className="h-9"
+                />
+                {errors.project_duration_days && (
+                  <p className="text-xs text-destructive">{errors.project_duration_days.message}</p>
+                )}
+              </div>
+
+              <div className="space-y-1.5">
+                <Label htmlFor="process_complexity" className="text-sm">
                   Process Complexity: {complexity}/10
                 </Label>
                 <Slider
@@ -365,10 +402,10 @@ export function LiveAudit() {
                 />
               </div>
 
-              <div className="flex items-center justify-between rounded-lg border border-border p-4">
+              <div className="flex items-center justify-between rounded-lg border border-border p-3">
                 <div className="space-y-0.5">
-                  <Label htmlFor="pep_involvement">PEP Involvement</Label>
-                  <p className="text-sm text-muted-foreground">
+                  <Label htmlFor="pep_involvement" className="text-sm">PEP Involvement</Label>
+                  <p className="text-xs text-muted-foreground">
                     Politically Exposed Person involved
                   </p>
                 </div>
@@ -379,7 +416,7 @@ export function LiveAudit() {
                 />
               </div>
 
-              <Button type="submit" className="w-full" disabled={isLoading}>
+              <Button type="submit" className="w-full h-10" disabled={isLoading}>
                 {isLoading ? (
                   <>
                     <Loader2 className="mr-2 h-4 w-4 animate-spin" />
@@ -393,7 +430,7 @@ export function LiveAudit() {
           </CardContent>
         </Card>
 
-        <div className="space-y-4">
+        <div className="space-y-4" ref={resultsRef}>
           {error && (
             <Alert variant="destructive">
               <AlertCircle className="h-4 w-4" />
@@ -403,13 +440,14 @@ export function LiveAudit() {
 
           {isLoading && (
             <Card>
-              <CardHeader>
-                <Skeleton className="h-6 w-32" />
+              <CardHeader className="pb-4">
+                <CardTitle className="text-lg">Analyzing Tender</CardTitle>
+                <CardDescription className="text-sm">
+                  Our AI is examining the tender details and computing risk factors
+                </CardDescription>
               </CardHeader>
-              <CardContent className="space-y-4">
-                <Skeleton className="h-48 w-full" />
-                <Skeleton className="h-48 w-full" />
-                <Skeleton className="h-32 w-full" />
+              <CardContent>
+                <AuditProgress isLoading={isLoading} />
               </CardContent>
             </Card>
           )}
@@ -417,7 +455,7 @@ export function LiveAudit() {
           {results && !isLoading && (
             <>
               <RiskResults results={results} />
-              <Button onClick={handleDownloadReport} variant="outline" className="w-full">
+              <Button onClick={handleDownloadReport} variant="outline" className="w-full h-10">
                 <FileText className="mr-2 h-4 w-4" />
                 Download Report
               </Button>
@@ -426,9 +464,9 @@ export function LiveAudit() {
 
           {!results && !isLoading && !error && (
             <Card>
-              <CardContent className="flex flex-col items-center justify-center py-12 text-center">
-                <AlertCircle className="h-12 w-12 text-muted-foreground mb-4" />
-                <p className="text-muted-foreground">
+              <CardContent className="flex flex-col items-center justify-center py-10 text-center">
+                <AlertCircle className="h-10 w-10 text-muted-foreground mb-3" />
+                <p className="text-sm text-muted-foreground">
                   Enter tender details and click "Audit Now" to see results
                 </p>
               </CardContent>

@@ -1,3 +1,4 @@
+import { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from './ui/card';
 import { Alert, AlertDescription } from './ui/alert';
 import { Badge } from './ui/badge';
@@ -12,6 +13,13 @@ interface RiskResultsProps {
 
 export function RiskResults({ results }: RiskResultsProps) {
   const { theme } = useTheme();
+  const [isVisible, setIsVisible] = useState(false);
+
+  // Trigger animation on mount
+  useEffect(() => {
+    const timer = setTimeout(() => setIsVisible(true), 50);
+    return () => clearTimeout(timer);
+  }, []);
 
   const getRiskColor = (level: string) => {
     // Minimal and Low = Green
@@ -63,119 +71,137 @@ export function RiskResults({ results }: RiskResultsProps) {
   };
 
   return (
-    <div className="space-y-4">
-      <Card>
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <TrendingUp className="h-5 w-5" />
-            Risk Assessment
-          </CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="text-center mb-6">
-            <div className="text-5xl font-bold mb-2" style={{ color: chartColors.risk }}>
-              {(results.risk_score * 100).toFixed(1)}%
-            </div>
-            <div className="text-xl font-semibold text-muted-foreground">
-              {results.risk_level} Risk
-            </div>
-          </div>
-
-          <ResponsiveContainer width="100%" height={200}>
-            <PieChart>
-              <Pie
-                data={pieData}
-                cx="50%"
-                cy="50%"
-                innerRadius={60}
-                outerRadius={80}
-                paddingAngle={2}
-                dataKey="value"
+    <div 
+      className={`space-y-3 transition-all duration-700 ${
+        isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'
+      }`}
+    >
+      {/* Combined Risk Overview - Side by Side */}
+      <div className="grid gap-3 lg:grid-cols-2">
+        <Card className="overflow-hidden">
+          <CardHeader className="pb-3">
+            <CardTitle className="flex items-center gap-2 text-lg">
+              <TrendingUp className="h-4 w-4" />
+              Risk Assessment
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="text-center mb-3">
+              <div 
+                className="text-4xl font-bold mb-1 transition-all duration-1000 animate-in fade-in slide-in-from-bottom-4" 
+                style={{ color: chartColors.risk }}
               >
-                <Cell fill={chartColors.risk} />
-                <Cell fill={chartColors.safe} />
-              </Pie>
-            </PieChart>
-          </ResponsiveContainer>
-        </CardContent>
-      </Card>
-
-      <Card>
-        <CardHeader>
-          <CardTitle>Risk Factor Analysis</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="mb-4">
-            <p className="text-sm text-muted-foreground">Showing top 5 factors by impact</p>
-          </div>
-          <ResponsiveContainer width="100%" height={350}>
-            <RadarChart data={radarData}>
-              <PolarGrid stroke={chartColors.grid} />
-              <PolarAngleAxis
-                dataKey="feature"
-                tick={{ fill: chartColors.text, fontSize: 13 }}
-              />
-              <PolarRadiusAxis tick={{ fill: chartColors.text }} />
-              <Radar
-                name="Impact"
-                dataKey="value"
-                stroke={chartColors.radar}
-                fill={chartColors.radar}
-                fillOpacity={0.6}
-              />
-              <Tooltip
-                contentStyle={{
-                  backgroundColor: theme === 'dark' ? '#1f2937' : '#ffffff',
-                  border: `1px solid ${chartColors.grid}`,
-                  borderRadius: '8px',
-                }}
-                labelStyle={{ color: chartColors.text }}
-              />
-            </RadarChart>
-          </ResponsiveContainer>
-
-          <div className="mt-6 space-y-2">
-            <p className="text-sm font-medium text-muted-foreground">Top 5 Risk Contributors:</p>
-            <div className="space-y-2">
-              {top5Features.map((item, idx) => (
-                <div key={idx} className="flex items-center justify-between p-2 rounded-lg border border-border">
-                  <div className="flex items-center gap-2">
-                    {item.isText ? (
-                      <FileText className="h-4 w-4 text-blue-500" />
-                    ) : (
-                      <Calculator className="h-4 w-4 text-purple-500" />
-                    )}
-                    <span className="text-sm text-foreground">{item.feature}</span>
-                  </div>
-                  <span
-                    className="font-semibold text-sm"
-                    style={{ color: getFeatureColor(item.fullValue) }}
-                  >
-                    {item.fullValue > 0 ? '+' : ''}{item.fullValue.toFixed(4)}
-                  </span>
-                </div>
-              ))}
+                {(results.risk_score * 100).toFixed(1)}%
+              </div>
+              <div className="text-lg font-semibold text-muted-foreground animate-in fade-in slide-in-from-bottom-2 delay-150">
+                {results.risk_level} Risk
+              </div>
             </div>
-          </div>
-        </CardContent>
-      </Card>
+
+            <ResponsiveContainer width="100%" height={200}>
+              <PieChart>
+                <Pie
+                  data={pieData}
+                  cx="50%"
+                  cy="50%"
+                  innerRadius={55}
+                  outerRadius={75}
+                  paddingAngle={2}
+                  dataKey="value"
+                >
+                  <Cell fill={chartColors.risk} />
+                  <Cell fill={chartColors.safe} />
+                </Pie>
+              </PieChart>
+            </ResponsiveContainer>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader className="pb-3">
+            <CardTitle className="text-lg">Risk Factor Analysis</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="mb-3">
+              <p className="text-xs text-muted-foreground">Showing top 5 factors by impact</p>
+            </div>
+            <ResponsiveContainer width="100%" height={200}>
+              <RadarChart data={radarData}>
+                <PolarGrid stroke={chartColors.grid} />
+                <PolarAngleAxis
+                  dataKey="feature"
+                  tick={{ fill: chartColors.text, fontSize: 10 }}
+                />
+                <PolarRadiusAxis tick={{ fill: chartColors.text, fontSize: 9 }} />
+                <Radar
+                  name="Impact"
+                  dataKey="value"
+                  stroke={chartColors.radar}
+                  fill={chartColors.radar}
+                  fillOpacity={0.6}
+                />
+                <Tooltip
+                  contentStyle={{
+                    backgroundColor: theme === 'dark' ? '#1f2937' : '#ffffff',
+                    border: `1px solid ${theme === 'dark' ? '#374151' : '#e5e7eb'}`,
+                    borderRadius: '8px',
+                    padding: '12px',
+                    color: theme === 'dark' ? '#f3f4f6' : '#1f2937',
+                  }}
+                  labelStyle={{ 
+                    color: theme === 'dark' ? '#f9fafb' : '#1f2937',
+                    fontWeight: 'bold'
+                  }}
+                  itemStyle={{
+                    color: theme === 'dark' ? '#e5e7eb' : '#374151',
+                  }}
+                />
+              </RadarChart>
+            </ResponsiveContainer>
+
+            <div className="mt-3 space-y-1.5">
+              <p className="text-xs font-medium text-muted-foreground">Top 5 Risk Contributors:</p>
+              <div className="space-y-1.5">
+                {top5Features.map((item, idx) => (
+                  <div key={idx} className="flex items-center justify-between p-1.5 rounded-lg border border-border">
+                    <div className="flex items-center gap-2">
+                      {item.isText ? (
+                        <FileText className="h-3.5 w-3.5 text-blue-500" />
+                      ) : (
+                        <Calculator className="h-3.5 w-3.5 text-purple-500" />
+                      )}
+                      <span className="text-xs text-foreground">{item.feature}</span>
+                    </div>
+                    <span
+                      className="font-semibold text-xs"
+                      style={{ color: getFeatureColor(item.fullValue) }}
+                    >
+                      {item.fullValue > 0 ? '+' : ''}{item.fullValue.toFixed(4)}
+                    </span>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+      </div>
 
       <Card>
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <TrendingUp className="h-5 w-5" />
+        <CardHeader className="pb-3">
+          <CardTitle className="flex items-center gap-2 text-lg">
+            <TrendingUp className="h-4 w-4" />
             SHAP Feature Impact for This Tender
           </CardTitle>
         </CardHeader>
         <CardContent>
-          <div className="space-y-4">
-            <p className="text-sm text-muted-foreground">
+          <div className="space-y-3">
+            <p className="text-xs text-muted-foreground">
               Diverging bar chart showing how each feature influenced this tender's risk score. 
               Red bars increase risk (positive SHAP), green bars decrease risk (negative SHAP).
               Hover over bars to see feature names and values.
             </p>
             
-            <ResponsiveContainer width="100%" height={380}>
+            <ResponsiveContainer width="100%" height={340}>
               <BarChart 
                 data={allFeatures
                   .sort((a, b) => Math.abs(b.fullValue) - Math.abs(a.fullValue))
@@ -211,11 +237,19 @@ export function RiskResults({ results }: RiskResultsProps) {
                 <Tooltip
                   contentStyle={{
                     backgroundColor: theme === 'dark' ? '#1f2937' : '#ffffff',
-                    border: `1px solid ${chartColors.grid}`,
+                    border: `1px solid ${theme === 'dark' ? '#374151' : '#e5e7eb'}`,
                     borderRadius: '8px',
                     padding: '12px',
+                    color: theme === 'dark' ? '#f3f4f6' : '#1f2937',
                   }}
-                  labelStyle={{ color: chartColors.text, fontWeight: 'bold' }}
+                  labelStyle={{ 
+                    color: theme === 'dark' ? '#f9fafb' : '#1f2937', 
+                    fontWeight: 'bold',
+                    marginBottom: '4px'
+                  }}
+                  itemStyle={{
+                    color: theme === 'dark' ? '#e5e7eb' : '#374151',
+                  }}
                   formatter={(value: number) => [
                     `${value > 0 ? '+' : ''}${value.toFixed(4)}`,
                     value >= 0 ? 'Increases Risk' : 'Decreases Risk'
@@ -280,19 +314,19 @@ export function RiskResults({ results }: RiskResultsProps) {
 
       {results.interpretation && (
         <Card>
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <Sparkles className="h-5 w-5" />
+          <CardHeader className="pb-3">
+            <CardTitle className="flex items-center gap-2 text-lg">
+              <Sparkles className="h-4 w-4" />
               AI Auditor's Summary
-              <Badge variant="secondary" className="ml-2">
+              <Badge variant="secondary" className="ml-2 text-xs">
                 Powered by Gemini
               </Badge>
             </CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="prose prose-sm dark:prose-invert max-w-none">
+            <div className="prose prose-sm dark:prose-invert max-w-none text-sm">
               {results.interpretation.split('\n').map((line, idx) => (
-                line.trim() && <p key={idx} className="text-foreground">{line}</p>
+                line.trim() && <p key={idx} className="text-foreground mb-2">{line}</p>
               ))}
             </div>
           </CardContent>
