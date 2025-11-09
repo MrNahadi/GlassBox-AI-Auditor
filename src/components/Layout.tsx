@@ -8,6 +8,8 @@ export function Layout() {
 
   const navItems = [
     { path: '/', label: 'Live Audit' },
+    { path: '/batch', label: 'Batch Audit' },
+    { path: '/history', label: 'History' },
     { path: '/dashboard', label: 'Dashboard' },
     { path: '/glossary', label: 'Glossary' },
   ];

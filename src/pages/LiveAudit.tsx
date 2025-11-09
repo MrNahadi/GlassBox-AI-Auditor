@@ -1,7 +1,8 @@
-import { useState, useRef } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
+import { useLocation } from 'react-router-dom';
 import { AlertCircle, FileText, Loader2, Shuffle, Sliders } from 'lucide-react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../components/ui/card';
 import { Button } from '../components/ui/button';
@@ -15,6 +16,7 @@ import { AuditProgress } from '../components/ui/audit-progress';
 import { useToast } from '../hooks/use-toast';
 import { auditTender, generateReport, type AuditResponse, type TenderInput } from '../services/api';
 import { RiskResults } from '../components/RiskResults';
+import { auditHistory, type AuditRecord } from '../services/auditHistory';
 
 const tenderSchema = z.object({
   tender_title: z.string().min(1, 'Tender title is required').max(500),
@@ -51,6 +53,7 @@ export function LiveAudit() {
   const [targetRiskLevel, setTargetRiskLevel] = useState(50);
   const resultsRef = useRef<HTMLDivElement>(null);
   const { toast } = useToast();
+  const location = useLocation();
 
   const { register, handleSubmit, formState: { errors }, setValue } = useForm<TenderFormData>({
     resolver: zodResolver(tenderSchema),
@@ -59,6 +62,38 @@ export function LiveAudit() {
       pep_involvement: false,
     },
   });
+
+  // Load audit from history if navigated from History page
+  useEffect(() => {
+    if (location.state?.loadAudit) {
+      const record = location.state.loadAudit as AuditRecord;
+      
+      // Populate form
+      setValue('tender_title', record.input.tender_title);
+      setValue('tender_value_kes', record.input.tender_value_kes);
+      setValue('number_of_bidders', record.input.number_of_bidders);
+      setValue('project_duration_days', record.input.project_duration_days);
+      setValue('process_complexity', record.input.process_complexity);
+      setValue('pep_involvement', record.input.pep_involvement);
+      setValue('tender_description', record.input.tender_description);
+      setComplexity(record.input.process_complexity);
+      
+      // Show results
+      setResults(record.result);
+      setFormData(record.input);
+      
+      // Scroll to results
+      setTimeout(() => {
+        resultsRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }, 300);
+      
+      toast({
+        title: "📜 Audit Loaded",
+        description: "Loaded audit from history",
+        duration: 3000,
+      });
+    }
+  }, [location.state, setValue, toast]);
 
   const onSubmit = async (data: TenderFormData) => {
     setIsLoading(true);
@@ -73,6 +108,14 @@ export function LiveAudit() {
       setFormData(input);
       const response = await auditTender(input);
       setResults(response);
+      
+      // Save to audit history
+      try {
+        auditHistory.save(input, response);
+      } catch (historyError) {
+        console.error('Failed to save audit to history:', historyError);
+        // Don't block the audit completion if history save fails
+      }
       
       // Show success toast
       toast({
