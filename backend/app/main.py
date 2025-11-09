@@ -417,9 +417,9 @@ async def generate_report(report_data: ReportRequest):
         
         # Import chart generator
         try:
-            from .chart_generator import generate_radar_chart, generate_contribution_chart
+            from .chart_generator import generate_radar_chart, generate_contribution_chart, generate_shap_diverging_chart
         except ImportError:
-            from chart_generator import generate_radar_chart, generate_contribution_chart
+            from chart_generator import generate_radar_chart, generate_contribution_chart, generate_shap_diverging_chart
 
         buffer = io.BytesIO()
 
@@ -585,6 +585,15 @@ async def generate_report(report_data: ReportRequest):
         radar_chart = generate_radar_chart(report_data.shap_values, report_data.risk_level)
         radar_img = Image(radar_chart, width=3.5*inch, height=3.5*inch)
         story.append(radar_img)
+        story.append(Spacer(1, 0.12*inch))
+
+        # SHAP Feature Impact Analysis
+        story.append(Paragraph("SHAP Feature Impact Analysis", section_style))
+        story.append(HRFlowable(width="100%", thickness=1, color=colors.HexColor('#e2e8f0'), spaceAfter=6))
+
+        shap_diverging_chart = generate_shap_diverging_chart(report_data.shap_values)
+        shap_img = Image(shap_diverging_chart, width=6.5*inch, height=4*inch)
+        story.append(shap_img)
         story.append(Spacer(1, 0.12*inch))
 
         # Feature Contribution Summary (text only)

@@ -76,3 +76,58 @@ def generate_contribution_chart(text_percentage: float, numeric_percentage: floa
     plt.close(fig)
 
     return buffer
+
+
+def generate_shap_diverging_chart(shap_values: dict) -> BytesIO:
+    """
+    Generate a diverging horizontal bar chart for SHAP values.
+    Red bars (positive) = increase risk
+    Green bars (negative) = decrease risk
+    """
+    # Get top 10 features by absolute SHAP value
+    sorted_features = sorted(shap_values.items(), key=lambda x: abs(x[1]), reverse=True)[:10]
+    
+    if len(sorted_features) == 0:
+        sorted_features = [('No Data', 0)]
+    
+    # Extract feature names and values
+    feature_names = [name.replace('_', ' ').replace('text  ', '📝 ').replace('Text  ', '📝 ').title() 
+                     for name, _ in sorted_features]
+    shap_vals = [value for _, value in sorted_features]
+    
+    # Create figure
+    fig, ax = plt.subplots(figsize=(10, 6))
+    
+    # Create horizontal bar chart
+    y_pos = np.arange(len(feature_names))
+    colors = ['#ef4444' if val >= 0 else '#22c55e' for val in shap_vals]
+    
+    bars = ax.barh(y_pos, shap_vals, color=colors, height=0.6, edgecolor='none')
+    
+    # Add a vertical line at x=0
+    ax.axvline(x=0, color='#374151', linewidth=2, linestyle='-', zorder=0)
+    
+    # Customize
+    ax.set_yticks(y_pos)
+    ax.set_yticklabels(feature_names, fontsize=10)
+    ax.set_xlabel('SHAP Value (Impact on Risk)', fontsize=11, weight='bold')
+    ax.set_title('SHAP Feature Impact Analysis', fontsize=14, weight='bold', pad=15)
+    ax.grid(axis='x', linestyle='--', alpha=0.3)
+    ax.set_axisbelow(True)
+    
+    # Add legend
+    from matplotlib.patches import Patch
+    legend_elements = [
+        Patch(facecolor='#ef4444', label='Increases Risk'),
+        Patch(facecolor='#22c55e', label='Decreases Risk')
+    ]
+    ax.legend(handles=legend_elements, loc='lower right', fontsize=9)
+    
+    plt.tight_layout()
+    
+    buffer = BytesIO()
+    plt.savefig(buffer, format='png', dpi=150, bbox_inches='tight', facecolor='white')
+    buffer.seek(0)
+    plt.close(fig)
+    
+    return buffer
