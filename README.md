@@ -31,20 +31,6 @@ The system provides instant risk scoring with SHAP-based explainability and AI-g
 - **Professional PDF Reports**: Download comprehensive audit reports with charts and AI insights
 - **Advanced Analytics**: Trend analysis, risk distribution charts, and statistical insights
 
-### User Experience
-
-- **Quick Fill Generator**: One-click population of realistic tender data
-  - Risk-targeted buttons (Low, Medium, High)
-  - Adjustable slider mode for precise risk targeting
-- **Blinking Eye Animation**: Brand-aligned loading indicator during audits
-- **4-Step Progress Indicator**: Visual feedback (Analyzing → Processing → Computing → Generating)
-- **Toast Notifications**: Real-time feedback throughout the application
-- **Model Transparency Dashboard**: View accuracy, AUC score, and global feature importance
-- **Educational Glossary**: Comprehensive guide explaining the model and risk parameters
-- **5 Beautiful Themes**: Light, Dark, Slate, Midnight, Ocean with optimized contrast
-- **Fully Responsive**: Works on desktop, tablet, and mobile
-- **Optimized Layouts**: Side-by-side visualizations, compact spacing, minimal scrolling
-
 ### Batch Processing Features
 
 - **CSV Upload**: Drag & drop or select CSV files with tender data
@@ -509,16 +495,6 @@ RELOAD=true
 - Professional PDF report generation
 - 5 beautiful themes with optimized contrast
 
-✅ **UI/UX Enhancements**
-
-- Blinking eye loading animation
-- 4-step progress indicator
-- Toast notifications throughout
-- Diverging SHAP bar charts
-- Side-by-side visualizations
-- Compact, responsive layouts
-- Optimized for minimal scrolling
-
 ✅ **Performance Optimizations**
 
 - Parallel batch processing (5x faster)
@@ -528,51 +504,30 @@ RELOAD=true
 
 ### Future Enhancements (Planned)
 
-🔄 **Version 1.1 - Authentication & Cloud Storage**
-
 - [ ] User authentication system
 - [ ] Cloud-based audit history (Supabase/Firebase)
 - [ ] Multi-user collaboration features
 - [ ] Role-based access control (Admin, Auditor, Viewer)
-
-🔄 **Version 1.2 - Advanced Analytics**
-
 - [ ] Custom risk threshold configuration
 - [ ] Advanced analytics dashboard with more charts
 - [ ] Predictive analytics for future tenders
 - [ ] Risk pattern detection across organizations
 - [ ] Anomaly detection system
-
-🔄 **Version 1.3 - Integration & Automation**
-
 - [ ] Integration with actual procurement systems (IFMIS, e-Procurement)
 - [ ] Email alert notifications for high-risk tenders
 - [ ] Scheduled batch processing (cron jobs)
 - [ ] Webhook support for real-time notifications
 - [ ] REST API for third-party integrations
-
-🔄 **Version 1.4 - AI & ML Improvements**
-
 - [ ] Real-world training data integration
 - [ ] Model retraining interface
 - [ ] A/B testing for model improvements
 - [ ] Multi-language support (Swahili, French)
 - [ ] Natural language query interface ("Show me high-risk tenders from last month")
-
-🔄 **Version 1.5 - Mobile & Accessibility**
-
 - [ ] Progressive Web App (PWA) support
 - [ ] Native mobile apps (iOS/Android)
 - [ ] Offline mode with sync
 - [ ] Enhanced accessibility features (WCAG AAA compliance)
 - [ ] Voice input for tender data
-
-### Research & Development
-
-- [ ] Blockchain integration for audit trail
-- [ ] Graph neural networks for relationship detection
-- [ ] Computer vision for document analysis
-- [ ] Federated learning for privacy-preserving model training
 
 ## Contributing
 
@@ -830,53 +785,22 @@ See [docs/QUICKSTART.md](./docs/QUICKSTART.md) for more detailed troubleshooting
 
 MIT License - see [LICENSE](LICENSE) file for details
 
-## Screenshots
-
-### Live Audit Page
-
-- Quick Fill buttons for instant testing
-- Real-time risk scoring with SHAP explanations
-- AI-powered insights from Gemini 2.5 Flash
-- Diverging bar chart showing feature contributions
-- Download PDF reports
-
-### Batch Audit Page
-
-- CSV upload with drag & drop
-- Parallel processing with real-time progress
-- Statistics dashboard with completion metrics
-- Risk distribution pie chart
-- Export results to CSV
-
-### Audit History
-
-- Search and filter all past audits
-- 30-day risk trend analysis
-- Risk distribution breakdown
-- Re-audit functionality
-- Export to JSON or CSV
-
-### Dashboard
-
-- Model transparency metrics (96.16% accuracy)
-- Global feature importance
-- AUC score visualization
-- Educational content
-
-### Glossary
-
-- Comprehensive explanations of all risk factors
-- Model architecture overview
-- SHAP methodology guide
-- Best practices for risk assessment
-
 ## Team
+
+|Name                    |Course of Study                                   |
+|------------------------|--------------------------------------------------|
+|MUKABANE Fabiola Mukanzi|BSc. Computer Science                             |
+|NGESA Mark Griffin      |BSc. Telecomunications and Information Engineering|
+|IRUNGU Kaguchia Charles |BSc. Computer Science                             |
+|NAHADI Farid Muigu      |BSc. Marine Engineering                           |        
+
+---
 
 **Glassbox AI** - Built for the AI for National Prosperity Hackathon
 
 **Project Goal:** Empower transparent and accountable governance through AI-powered procurement auditing.
 
-**Contact:** [GitHub Repository](https://github.com/MrNahadi/GlassBox-AI-Auditor)
+**Contact:** [GitHub Repository](https://github.com/MrNahadi/GlassBox-AI-Auditor) | muigufatid@gmail.com
 
 ## Acknowledgments
 
@@ -892,12 +816,6 @@ MIT License - see [LICENSE](LICENSE) file for details
 - **React** - Declarative UI library
 - **TypeScript** - Type-safe JavaScript
 
-### Special Thanks
-
-- AI for National Prosperity Hackathon organizers
-- Open-source community for amazing tools
-- Contributors and users providing feedback
-
 ---
 
 **Glassbox AI** - Every prediction explained. Every decision transparent.
@@ -909,14 +827,6 @@ MIT License - see [LICENSE](LICENSE) file for details
 🌍 **Built for the people of Kenya and beyond.**
 
 ---
-
-### Quick Links
-
-- **Live Demo:** [Coming Soon]
-- **Documentation:** [docs/](./docs/)
-- **API Docs:** http://localhost:8000/docs (when running)
-- **Issues:** [GitHub Issues](https://github.com/MrNahadi/GlassBox-AI-Auditor/issues)
-- **Discussions:** [GitHub Discussions](https://github.com/MrNahadi/GlassBox-AI-Auditor/discussions)
 
 ### Statistics
 
